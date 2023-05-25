@@ -64,9 +64,9 @@
   <script src="https://apis.google.com/js/api.js"></script>
   
   <script>
-    var CLIENT_ID = 'YOUR_CLIENT_ID'; // Replace with your actual client ID
-    var API_KEY = 'YOUR_API_KEY'; // Replace with your actual API key
-    var SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID'; // Replace with your actual spreadsheet ID
+    var CLIENT_ID = '15174380191-cikople4027oqv9hap2j2nm9v2nktbh2.apps.googleusercontent.com'; // Replace with your actual client ID
+    var API_KEY = 'AIzaSyBzh-afzLPeVu9AeT0C2D11iNJ1sRm8gxs'; // Replace with your actual API key
+    var SPREADSHEET_ID = '1xrLwlOoz6LOpAxxYh8V-qNVJq3RNkuDJnK7ddnoVRfs'; // Replace with your actual spreadsheet ID
 
     function initClient() {
       gapi.client.init({
@@ -95,7 +95,7 @@
       var newRowData = [summary, description, actions, supportLink];
       gapi.client.sheets.spreadsheets.values.append({
         spreadsheetId: SPREADSHEET_ID,
-        range: "Sheet1!A:A", // Replace "Sheet1" with your actual sheet name and range
+        range: "Issues!A:A",
         valueInputOption: "USER_ENTERED",
         resource: {
           values: [newRowData]
