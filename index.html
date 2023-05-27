@@ -107,7 +107,7 @@
       document
         .getElementById("issueForm")
         .addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent form submission
+          event.preventDefault();
 
           var formData = new FormData(this);
           var requestData = {};
@@ -116,18 +116,20 @@
             requestData[key] = value;
           }
 
-          // Send the form data to Google Sheets
-          fetch("YOUR_BACKEND_ENDPOINT", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(requestData),
-          })
+          fetch(
+            "https://script.google.com/macros/s/AKfycbwSpu9GqwQbvFy8mjd-EyKM2l0NTaGxVpAbjMw5Mn6k5h_Pi680Ucl6EGubSYQueuXL/exec",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams(requestData),
+            }
+          )
             .then(function (response) {
               if (response.ok) {
                 alert("Data submitted successfully!");
-                document.getElementById("issueForm").reset(); // Reset the form
+                document.getElementById("issueForm").reset();
               } else {
                 alert("An error occurred while submitting the data.");
               }
