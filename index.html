@@ -7,16 +7,16 @@
       display: flex;
       justify-content: space-between;
     }
-
+  
     .grid-container h3 {
       margin: 0;
     }
-
+  
     .grid-container .input-container {
       flex: 1;
       margin-bottom: 10px;
     }
-
+  
     .grid-container .input-container input,
     .grid-container .input-container textarea {
       width: 100%;
@@ -24,45 +24,44 @@
       margin-top: 5px;
       height: 40px;
     }
-
+  
     .submit-container {
       text-align: right;
     }
-
+  
     .submit-container input[type="submit"] {
       width: auto;
       padding: 10px 20px;
       font-size: 16px;
     }
-
+  
     .submit-container hr {
       margin-top: 20px;
       border: none;
       border-top: 1px solid #ccc;
     }
-
+  
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-
+  
     table th, table td {
       padding: 8px;
       border: 1px solid #ccc;
     }
-
+  
     table td:nth-child(1) {
       text-align: center;
     }
-
+  
     .copy-button {
       text-align: right;
       margin-top: 20px;
     }
   </style>
   <script src="https://apis.google.com/js/api.js"></script>
-  
   <script>
     var CLIENT_ID = '15174380191-cikople4027oqv9hap2j2nm9v2nktbh2.apps.googleusercontent.com'; // Replace with your actual client ID
     var API_KEY = 'AIzaSyBzh-afzLPeVu9AeT0C2D11iNJ1sRm8gxs'; // Replace with your actual API key
@@ -83,7 +82,7 @@
         });
       });
     }
-    
+
     function validateForm(event) {
       event.preventDefault(); // Prevent default form submission behavior
 
@@ -98,98 +97,47 @@
       }
 
       var newRowData = [summary, description, actions, supportLink];
-      gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: "Issues!A:A",
-        valueInputOption: "USER_ENTERED",
-        resource: {
-          values: [newRowData]
-        }
-      }).then(function(response) {
+
+      appendValues(newRowData).then(function() {
         console.log("Row added to Google Sheets");
-      }, function(error) {
+        addRowToTable(newRowData);
+        clearInputFields();
+      }).catch(function(error) {
         console.error("Error adding row to Google Sheets:", error.result.error.message);
       });
-
-      if (supportLink !== "" && supportLink !== "N/A") {
-        var urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
-        if (!urlPattern.test(supportLink)) {
-          alert("Support Link should be a valid URL or 'N/A'.");
-          return false;
-        }
-      }
-
-      // Add new row to the table
-      var table = document.getElementById("issueTable");
-      var newRow = table.insertRow();
-
-      var cell1 = newRow.insertCell(0);
-      var cell2 = newRow.insertCell(1);
-      var cell3 = newRow.insertCell(2);
-      var cell4 = newRow.insertCell(3);
-      var cell5 = newRow.insertCell(4);
-
-      cell1.innerHTML = "<input type='text' class='ticket-input' />";
-      cell2.innerHTML = summary;
-      cell3.innerHTML = description;
-      cell4.innerHTML = actions;
-      cell5.innerHTML = supportLink;
-
-      // Clear input fields
-      document.getElementById("summary").value = "";
-      document.getElementById("description").value = "";
-      document.getElementById("actions").value = "";
-      document.getElementById("supportLink").value = "";
 
       return true;
     }
 
-    function copyInputs() {
-  var table = document.getElementById("issueTable");
-  var inputs = "";
-
-  // Loop through table rows
-  for (var i = 0; i < table.rows.length; i++) {
-    var row = table.rows[i];
-
-    // Loop through row cells
-    for (var j = 0; j < row.cells.length; j++) {
-      var input = row.cells[j].querySelector('input, textarea');
-      var inputValue = "";
-
-      if (input) {
-        inputValue = input.value;
-      } else {
-        inputValue = row.cells[j].textContent;
-      }
-
-      // Add the input value to the formatted string
-      inputs += inputValue + "\t"; // Separate values with a tab character
+    function appendValues(rowData) {
+      return gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: "Issues!A:A",
+        valueInputOption: "USER_ENTERED",
+        resource: {
+          values: [rowData]
+        }
+      });
     }
 
-    // Add a new line after each row
-    inputs += "\n";
-  }
+    function addRowToTable(rowData) {
+      var table = document.getElementById("issueTable");
+      var newRow = table.insertRow();
 
-  // Create a temporary textarea element
-  var tempTextarea = document.createElement("textarea");
-  tempTextarea.value = inputs;
+      for (var i = 0; i < rowData.length; i++) {
+        var cell = newRow.insertCell(i);
+        cell.textContent = rowData[i];
+      }
+    }
 
-  // Append the textarea to the document
-  document.body.appendChild(tempTextarea);
+    function clearInputFields() {
+      document.getElementById("summary").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("actions").value = "";
+      document.getElementById("supportLink").value = "";
+    }
 
-  // Select the text inside the textarea
-  tempTextarea.select();
-
-  // Execute the copy command
-  document.execCommand('copy');
-
-  // Remove the temporary textarea from the document
-  document.body.removeChild(tempTextarea);
-
-  alert("Inputs copied to clipboard!");
-}
-gapi.load('client', initClient);
+    gapi.load('client', initClient);
   </script>
 </head>
 <body>
@@ -239,4 +187,3 @@ gapi.load('client', initClient);
   </div>
 </body>
 </html>
-
