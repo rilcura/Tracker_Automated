@@ -69,9 +69,11 @@
     var SPREADSHEET_ID = '1xrLwlOoz6LOpAxxYh8V-qNVJq3RNkuDJnK7ddnoVRfs'; // Replace with your actual spreadsheet ID
 
     function initClient() {
-      gapi.load('auth2', function() {
-        gapi.auth2.init({
-          client_id: CLIENT_ID,
+      gapi.load('client:auth2', function() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
           scope: 'https://www.googleapis.com/auth/spreadsheets',
         }).then(function() {
           // Sign in the user if they are not already signed in
