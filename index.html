@@ -1,189 +1,217 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Issue Tracker</title>
-  <style>
-    .grid-container {
-      display: flex;
-      justify-content: space-between;
-    }
-  
-    .grid-container h3 {
-      margin: 0;
-    }
-  
-    .grid-container .input-container {
-      flex: 1;
-      margin-bottom: 10px;
-    }
-  
-    .grid-container .input-container input,
-    .grid-container .input-container textarea {
-      width: 100%;
-      box-sizing: border-box;
-      margin-top: 5px;
-      height: 40px;
-    }
-  
-    .submit-container {
-      text-align: right;
-    }
-  
-    .submit-container input[type="submit"] {
-      width: auto;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-  
-    .submit-container hr {
-      margin-top: 20px;
-      border: none;
-      border-top: 1px solid #ccc;
-    }
-  
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-  
-    table th, table td {
-      padding: 8px;
-      border: 1px solid #ccc;
-    }
-  
-    table td:nth-child(1) {
-      text-align: center;
-    }
-  
-    .copy-button {
-      text-align: right;
-      margin-top: 20px;
-    }
-  </style>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script>
-    var CLIENT_ID = '15174380191-cikople4027oqv9hap2j2nm9v2nktbh2.apps.googleusercontent.com'; // Replace with your actual client ID
-    var API_KEY = 'AIzaSyBzh-afzLPeVu9AeT0C2D11iNJ1sRm8gxs'; // Replace with your actual API key
-    var SPREADSHEET_ID = '1xrLwlOoz6LOpAxxYh8V-qNVJq3RNkuDJnK7ddnoVRfs'; // Replace with your actual spreadsheet ID
+  <head>
+    <title>Issue Tracker</title>
+    <style>
+      .grid-container {
+        display: flex;
+        justify-content: space-between;
+      }
 
-    function initClient() {
-      gapi.load('client:auth2', function() {
-        gapi.client.init({
-          apiKey: API_KEY,
-          clientId: CLIENT_ID,
-          discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-          scope: 'https://www.googleapis.com/auth/spreadsheets',
-        }).then(function() {
-          // Sign in the user if they are not already signed in
-          if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            gapi.auth2.getAuthInstance().signIn();
-          }
+      .grid-container h3 {
+        margin: 0;
+      }
+
+      .grid-container .input-container {
+        flex: 1;
+        margin-bottom: 10px;
+      }
+
+      .grid-container .input-container input,
+      .grid-container .input-container textarea {
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 5px;
+        height: 40px;
+      }
+
+      .submit-container {
+        text-align: right;
+      }
+
+      .submit-container input[type="submit"] {
+        width: auto;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+
+      .submit-container hr {
+        margin-top: 20px;
+        border: none;
+        border-top: 1px solid #ccc;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      table th,
+      table td {
+        padding: 8px;
+        border: 1px solid #ccc;
+      }
+
+      table td:nth-child(1) {
+        text-align: center;
+      }
+
+      .copy-button {
+        text-align: right;
+        margin-top: 20px;
+      }
+    </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      function handleCredentialResponse(response) {
+        // Handle the credential response here
+        console.log("Credential response:", response);
+      }
+    </script>
+    <script>
+      var CLIENT_ID =
+        "15174380191-cikople4027oqv9hap2j2nm9v2nktbh2.apps.googleusercontent.com"; // Replace with your actual client ID
+      var API_KEY = "AIzaSyBzh-afzLPeVu9AeT0C2D11iNJ1sRm8gxs"; // Replace with your actual API key
+      var SPREADSHEET_ID = "1xrLwlOoz6LOpAxxYh8V-qNVJq3RNkuDJnK7ddnoVRfs"; // Replace with your actual spreadsheet ID
+
+      function initClient() {
+        gapi.load("client:auth2", function () {
+          gapi.client
+            .init({
+              apiKey: API_KEY,
+              clientId: CLIENT_ID,
+              discoveryDocs: [
+                "https://sheets.googleapis.com/$discovery/rest?version=v4",
+              ],
+              scope: "https://www.googleapis.com/auth/spreadsheets",
+            })
+            .then(function () {
+              // Sign in the user if they are not already signed in
+              if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                gapi.auth2.getAuthInstance().signIn();
+              }
+            });
         });
-      });
-    }
-
-    function validateForm(event) {
-      event.preventDefault(); // Prevent default form submission behavior
-
-      var summary = document.getElementById("summary").value;
-      var description = document.getElementById("description").value;
-      var actions = document.getElementById("actions").value;
-      var supportLink = document.getElementById("supportLink").value;
-
-      if (summary === "" || description === "" || actions === "") {
-        alert("Please fill in all the required fields.");
-        return false;
       }
 
-      var newRowData = [summary, description, actions, supportLink];
+      function validateForm(event) {
+        event.preventDefault(); // Prevent default form submission behavior
 
-      appendValues(newRowData).then(function() {
-        console.log("Row added to Google Sheets");
-        addRowToTable(newRowData);
-        clearInputFields();
-      }).catch(function(error) {
-        console.error("Error adding row to Google Sheets:", error.result.error.message);
-      });
+        var summary = document.getElementById("summary").value;
+        var description = document.getElementById("description").value;
+        var actions = document.getElementById("actions").value;
+        var supportLink = document.getElementById("supportLink").value;
 
-      return true;
-    }
-
-    function appendValues(rowData) {
-      return gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: "Issues!A:A",
-        valueInputOption: "USER_ENTERED",
-        resource: {
-          values: [rowData]
+        if (summary === "" || description === "" || actions === "") {
+          alert("Please fill in all the required fields.");
+          return false;
         }
-      });
-    }
 
-    function addRowToTable(rowData) {
-      var table = document.getElementById("issueTable");
-      var newRow = table.insertRow();
+        var newRowData = [summary, description, actions, supportLink];
 
-      for (var i = 0; i < rowData.length; i++) {
-        var cell = newRow.insertCell(i);
-        cell.textContent = rowData[i];
+        appendValues(newRowData)
+          .then(function () {
+            console.log("Row added to Google Sheets");
+            addRowToTable(newRowData);
+            clearInputFields();
+          })
+          .catch(function (error) {
+            console.error(
+              "Error adding row to Google Sheets:",
+              error.result.error.message
+            );
+          });
+
+        return true;
       }
-    }
 
-    function clearInputFields() {
-      document.getElementById("summary").value = "";
-      document.getElementById("description").value = "";
-      document.getElementById("actions").value = "";
-      document.getElementById("supportLink").value = "";
-    }
+      function appendValues(rowData) {
+        return gapi.client.sheets.spreadsheets.values.append({
+          spreadsheetId: SPREADSHEET_ID,
+          range: "Issues!A:A",
+          valueInputOption: "USER_ENTERED",
+          resource: {
+            values: [rowData],
+          },
+        });
+      }
 
-    gapi.load('client', initClient);
-  </script>
-</head>
-<body>
-  <h1>Issue Tracker</h1>
+      function addRowToTable(rowData) {
+        var table = document.getElementById("issueTable");
+        var newRow = table.insertRow();
 
-  <form onsubmit="return validateForm(event)">
-    <div class="grid-container">
-      <div class="input-container">
-        <h3>Issue Summary:</h3>
-        <input type="text" id="summary" name="summary" required>
+        for (var i = 0; i < rowData.length; i++) {
+          var cell = newRow.insertCell(i);
+          cell.textContent = rowData[i];
+        }
+      }
+
+      function clearInputFields() {
+        document.getElementById("summary").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("actions").value = "";
+        document.getElementById("supportLink").value = "";
+      }
+
+      gapi.load("client", initClient);
+    </script>
+  </head>
+  <body>
+    <div
+      id="g_id_onload"
+      data-client_id="YOUR_CLIENT_ID"
+      data-callback="handleCredentialResponse"
+    ></div>
+    <div class="g_id_signin" data-type="standard"></div>
+    <h1>Issue Tracker</h1>
+
+    <form onsubmit="return validateForm(event)">
+      <div class="grid-container">
+        <div class="input-container">
+          <h3>Issue Summary:</h3>
+          <input type="text" id="summary" name="summary" required />
+        </div>
+
+        <div class="input-container">
+          <h3>Description:</h3>
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+
+        <div class="input-container">
+          <h3>Actions Taken:</h3>
+          <textarea id="actions" name="actions" rows="4" required></textarea>
+        </div>
+
+        <div class="input-container">
+          <h3>Support Link:</h3>
+          <input type="text" id="supportLink" name="supportLink" />
+        </div>
       </div>
 
-      <div class="input-container">
-        <h3>Description:</h3>
-        <textarea id="description" name="description" rows="4" required></textarea>
+      <div class="submit-container">
+        <input type="submit" value="Submit" />
+        <hr />
       </div>
+    </form>
 
-      <div class="input-container">
-        <h3>Actions Taken:</h3>
-        <textarea id="actions" name="actions" rows="4" required></textarea>
-      </div>
+    <table id="issueTable">
+      <tr>
+        <th>Number of Tickets</th>
+        <th>Issue Summary</th>
+        <th>Description</th>
+        <th>Actions Taken</th>
+        <th>Support Link</th>
+      </tr>
+    </table>
 
-      <div class="input-container">
-        <h3>Support Link:</h3>
-        <input type="text" id="supportLink" name="supportLink">
-      </div>
+    <div class="copy-button">
+      <button onclick="copyInputs()">Copy Inputs</button>
     </div>
-
-    <div class="submit-container">
-      <input type="submit" value="Submit">
-      <hr>
-    </div>
-  </form>
-
-  <table id="issueTable">
-    <tr>
-      <th>Number of Tickets</th>
-      <th>Issue Summary</th>
-      <th>Description</th>
-      <th>Actions Taken</th>
-      <th>Support Link</th>
-    </tr>
-  </table>
-
-  <div class="copy-button">
-    <button onclick="copyInputs()">Copy Inputs</button>
-  </div>
-</body>
+  </body>
 </html>
